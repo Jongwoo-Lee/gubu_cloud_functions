@@ -1,0 +1,183 @@
+rules_version = "2";
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function emailVerified() {
+      return request.auth.token.email_verified;
+    }
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    function isSignedIn() {
+      return request.auth.uid != null;
+    }
+    function existingData() {
+      return resource.data;
+    }
+    function incomingData() {
+      return request.resource.data;
+    }
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isTeamMember(teamId) {
+     	return exists(/databases/$(database)/documents/teams_v3/$(teamId)/team_members/$(request.auth.uid))
+    }
+  	function isManager(teamId) {
+  		return request.auth.uid in
+      	get(/databases/$(database)/documents/teams_v3/$(teamId)).data.team_manager;
+    }
+    function isTeamMemberV4(teamId) {
+     	return request.auth.uid in 
+      	get(/databases/$(database)/documents/teams_v4/$(teamId)/a/m).data;
+    }
+    function isManagerV4(teamId) {
+  		return request.auth.uid in
+      	get(/databases/$(database)/documents/teams_v4/$(teamId)).data.team_manager;
+    }
+    
+    
+  	function isContestParticipants(teamId) {
+  		return 
+      	get(/databases/$(database)/documents/contest/{contestId}).data.attend_teams;
+    }
+    
+    // 앱에서 permission 정보 보내서 user 데이터 수정해도 되는지 확인
+    function allowUserTeamUpdate() {
+    	return request.resource.data.keys().hasAny(["permission"]) && isTeamMember(request.resource.data.permission);
+    }
+    function allowUserTeamUpdateV4() {
+    	return request.resource.data.keys().hasAny(["permission"]) && isTeamMemberV4(request.resource.data.permission);
+    }
+    
+    match /{path=**}/v/{member} {
+    	allow list: if isSignedIn();
+    }
+    
+    // team_v3
+    match /teams_v3/{teamID} {
+    	allow read, create : if isSignedIn();
+      allow update: if isTeamMember(teamID);
+      
+			match /boards/{boardID} {
+      	allow read, write: if isTeamMember(teamID);
+      }
+
+      match /team_members/{memberID} {
+      	allow read: if true;
+      	allow create: if isManager(teamID) || isTeamMember(teamID);
+        allow update,delete: if isTeamMember(teamID) || isOwner(memberID);
+      }
+      
+      match /team_temporaries/{tempID} {
+      	allow create: if isSignedIn();
+      	allow update, delete: if isOwner(tempID) || isTeamMember(teamID);
+      	allow read: if isTeamMember(teamID);
+      }
+      
+            
+      match /team_notverified/{tempID} {
+      	allow create: if isSignedIn();
+      	allow update, delete: if isOwner(tempID) || isTeamMember(teamID);
+      	allow read: if isTeamMember(teamID);
+      }
+    }
+    
+    // team_v4
+    match /teams_v4/{teamID} {
+    	allow read, create : if isSignedIn();
+      allow update: if isTeamMemberV4(teamID);
+      
+			match /boards/{boardID} {
+      	allow read, write: if isTeamMemberV4(teamID);
+      }
+
+			// active members
+      match /a/m {
+      	allow read: if true;
+      	allow create, delete: if isManagerV4(teamID) // || isTeamMember(teamID);
+      	allow update: if isManagerV4(teamID) || isTeamMemberV4(teamID) // || isOwner(memberID);
+      }
+      
+      match /r/{record} {
+      	allow read: if true;
+      	allow create, delete: if true; // || isTeamMember(teamID);
+      	allow update: if true; // || isOwner(memberID);
+      }
+      
+      // not verified (승인 대기)
+      match /v/{tempID} {
+      	allow read, write: if true;
+      	//allow create: if isSignedIn();
+      	//allow update, delete: if isOwner(tempID) || isTeamMemberV4(teamID);
+      	// allow get: if isOwner(tempID) ||isTeamMemberV4(teamID);
+      	// allow read: if true;
+      	// allow create: if isManagerV4(teamID) // || isTeamMember(teamID);
+      	// allow update: if isManagerV4(teamID) || isTeamMember(teamID) // || isOwner(memberID);
+      }
+      
+      match /d/{tempID} {
+      	allow create: if isTeamMemberV4(teamID);
+        allow update: if isManagerV4(teamID) || isTeamMemberV4(teamID);
+        allow read: if isTeamMemberV4(teamID);
+      }
+      
+      match /i/{tempID} {
+      	allow create, update, read: if isTeamMemberV4(teamID);
+      }
+      
+      match /team_temporaries/{tempID} {
+      	allow create: if isSignedIn();
+      	allow update, delete: if isOwner(tempID) || isTeamMemberV4(teamID);
+      	allow read: if isTeamMemberV4(teamID);
+      }
+      
+            
+      match /team_notverified/{tempID} {
+      	allow create: if isSignedIn();
+      	allow update, delete: if isOwner(tempID) || isTeamMemberV4(teamID);
+      	allow read: if isTeamMemberV4(teamID);
+      }
+    }
+    
+    
+    // user
+    match /users/{userID} {
+    	allow update: if isOwner(userID) || allowUserTeamUpdateV4();
+      allow create, read: if isSignedIn();
+      allow delete: if isOwner(userID);
+      match /private_data/{privateDoc} {
+      	allow delete: if isOwner(userID);
+      }
+      match /record/{year} {
+      	allow read: if isOwner(userID);
+        allow create, update, delete: if true;
+      }
+    }
+  
+  	// game
+  	match /games/{gameID} {
+    	allow read, write: if true;
+      
+			match /{colID1}/{docID1} {
+      		allow read, write: if true;
+        match /{colID2}/{docID2} {
+        	allow read, write: if true;
+        }
+      }
+    }
+    
+    // contest
+    match /contest/{contestID} {
+    	allow read, write: if true;
+      	match /{colID1}/{docID1} {
+      		allow read, write: if true;
+        	match /{colID2}/{docID2} {
+        		allow read, write: if true;
+        }
+      }
+    }
+    
+    // end match /databases/{database}/documents 
+  }
+}
