@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "gubutest"
+    "default": "outsid-prealpha2",
+    "test": "gubutest",
+    "deploy": "gubuapp"
   }
 }
