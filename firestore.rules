@@ -21,19 +21,19 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
     function isTeamMember(teamId) {
-     	return exists(/databases/$(database)/documents/teams_v3/$(teamId)/team_members/$(request.auth.uid))
+     	return exists(/databases/$(database)/documents/teams/$(teamId)/team_members/$(request.auth.uid))
     }
   	function isManager(teamId) {
   		return request.auth.uid in
-      	get(/databases/$(database)/documents/teams_v3/$(teamId)).data.team_manager;
+      	get(/databases/$(database)/documents/teams/$(teamId)).data.team_manager;
     }
     function isTeamMemberV4(teamId) {
      	return request.auth.uid in 
-      	get(/databases/$(database)/documents/teams_v4/$(teamId)/a/m).data;
+      	get(/databases/$(database)/documents/teams/$(teamId)/a/m).data;
     }
     function isManagerV4(teamId) {
   		return request.auth.uid in
-      	get(/databases/$(database)/documents/teams_v4/$(teamId)).data.team_manager;
+      	get(/databases/$(database)/documents/teams/$(teamId)).data.team_manager;
     }
     
     
@@ -83,8 +83,8 @@ service cloud.firestore {
       }
     }
     
-    // team_v4
-    match /teams_v4/{teamID} {
+    // teams (실제 사용)
+    match /teams/{teamID} {
     	allow read, create : if isSignedIn();
       allow update: if isTeamMemberV4(teamID);
       
