@@ -63,3 +63,6 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# Google cloud admin
+gubuapp-firebase-adminsdk-ache6-d79a8a8fa0.json
