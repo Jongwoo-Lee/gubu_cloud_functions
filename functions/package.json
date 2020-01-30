@@ -15,19 +15,20 @@
   "dependencies": {
     "@types/cors": "^2.8.6",
     "cors": "^2.8.5",
-    "crypto-random-string": "^3.0.1",
+    "crypto-random-string": "^3.1.0",
     "express": "^4.17.1",
-    "firebase-admin": "^8.6.0",
+    "firebase-admin": "8.9.2",
     "firebase-functions": "^3.3.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "solapi": "^4.0.17",
-    "uniqid": "^4.1.1"
+    "uniqid": "^4.1.1",
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
-    "typescript": "^3.2.2",
+    "@types/request-promise": "^4.1.44",
     "firebase-functions-test": "^0.1.6",
-    "@types/request-promise": "^4.1.44"
+    "typescript": "^3.7.5"
   },
   "private": true
 }

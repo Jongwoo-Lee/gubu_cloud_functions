@@ -1,6 +1,10 @@
 import * as admin from "firebase-admin";
 
-var serviceAccount = require("../gubuapp-firebase-adminsdk-ache6-d79a8a8fa0.json");
+// release branch
+// var serviceAccount = require("../gubuapp-firebase-adminsdk-ache6-d79a8a8fa0.json");
+
+// master branch
+var serviceAccount = require("../service-account.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
