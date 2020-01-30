@@ -1,5 +1,5 @@
 import * as request from "request-promise";
-const uuidv1 = require('uuid/v1');
+
 
 
 const KAKAO_APIURL = "https://kapi.kakao.com/v2/user/me";
@@ -37,7 +37,8 @@ const createFirebaseToken = ({
         userInfo.userId = `${userInfo.providerId}:${res.id}`;
         let email = res.kakao_account.email;
         if (email == undefined || email == null) {
-          email = `${uuidv1()}@kakao.com`;
+
+          email = `${makeRandomEmail()}@kakao.com`;
         }
 
         let name = res.properties.nickname;
@@ -52,7 +53,7 @@ const createFirebaseToken = ({
         userInfo.userId = `${userInfo.providerId}:${res.response.id}`;
         let email = res.response.email;
         if (email == undefined || email == null) {
-          email = `${uuidv1()}@naver.com`;
+          email = `${makeRandomEmail()}@naver.com`;
         }
 
         let name = res.response.name;
@@ -152,6 +153,18 @@ function updateOrCreateUser(admin: any, userInfo: UserInfo) {
         throw error;
       })
   );
+}
+
+// https://github.com/firebase/firebase-js-sdk/blob/master/packages/firestore/src/util/misc.ts#L26
+function makeRandomEmail() {
+  const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let autoId = '';
+  for (let i = 0; i < 20; i++) {
+    autoId += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  // assert(autoId.length === 20, 'Invalid auto ID: ' + autoId);
+  return autoId;
 }
 
 export default createFirebaseToken;
