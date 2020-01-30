@@ -35,13 +35,18 @@ const createFirebaseToken = ({
 
       if (userInfo.providerId === "kakao") {
         userInfo.userId = `${userInfo.providerId}:${res.id}`;
-        let email = res.response.email;
+        let email = res.kakao_account.email;
         if (email == undefined || email == null) {
           email = `${uuidv1()}@kakao.com`;
         }
 
+        let name = res.properties.nickname;
+        if (name == undefined || name == null) {
+          name = `익명`;
+        }
+
         userInfo.userEmail = email;
-        userInfo.userName = res.properties.nickname;
+        userInfo.userName = name;
         userInfo.photoURL = res.properties.profile_image;
       } else if (userInfo.providerId === "naver") {
         userInfo.userId = `${userInfo.providerId}:${res.response.id}`;
@@ -49,8 +54,14 @@ const createFirebaseToken = ({
         if (email == undefined || email == null) {
           email = `${uuidv1()}@naver.com`;
         }
+
+        let name = res.response.name;
+        if (name == undefined || name == null) {
+          name = `익명`;
+        }
+
         userInfo.userEmail = email;
-        userInfo.userName = res.response.name;
+        userInfo.userName = name;
         userInfo.photoURL = res.response.profile_image;
       } else {
         return res
