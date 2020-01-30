@@ -1,4 +1,6 @@
 import * as request from "request-promise";
+const uuidv1 = require('uuid/v1');
+
 
 const KAKAO_APIURL = "https://kapi.kakao.com/v2/user/me";
 const NAVER_APIURL = "https://openapi.naver.com/v1/nid/me";
@@ -33,12 +35,21 @@ const createFirebaseToken = ({
 
       if (userInfo.providerId === "kakao") {
         userInfo.userId = `${userInfo.providerId}:${res.id}`;
-        userInfo.userEmail = res.kakao_account.email;
+        let email = res.response.email;
+        if (email == undefined || email == null) {
+          email = `${uuidv1()}@kakao.com`;
+        }
+
+        userInfo.userEmail = email;
         userInfo.userName = res.properties.nickname;
         userInfo.photoURL = res.properties.profile_image;
       } else if (userInfo.providerId === "naver") {
         userInfo.userId = `${userInfo.providerId}:${res.response.id}`;
-        userInfo.userEmail = res.response.email;
+        let email = res.response.email;
+        if (email == undefined || email == null) {
+          email = `${uuidv1()}@naver.com`;
+        }
+        userInfo.userEmail = email;
         userInfo.userName = res.response.name;
         userInfo.photoURL = res.response.profile_image;
       } else {
