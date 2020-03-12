@@ -11,7 +11,8 @@ export const CONST = {
   TEAM_ACTIVE: "a",
   TEAM_ADMIN: "ad",
   SENDER_UID: "s",
-  NOTI_TYPE: "nt"
+  NOTI_TYPE: "nt",
+  LATEST_NOTI: "ln"
 };
 
 export const NOTI_TYPE = {
