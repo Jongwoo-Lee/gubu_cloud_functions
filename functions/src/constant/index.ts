@@ -12,7 +12,8 @@ export const CONST = {
   TEAM_ADMIN: "ad",
   SENDER_UID: "s",
   NOTI_TYPE: "nt",
-  LATEST_NOTI: "ln"
+  LATEST_NOTI: "ln",
+  USER_JOINED_AT: "ujA"
 };
 
 export const NOTI_TYPE = {
