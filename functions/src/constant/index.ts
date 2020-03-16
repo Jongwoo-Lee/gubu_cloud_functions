@@ -8,12 +8,15 @@ export const CONST = {
   CUP: "cup",
   NOTIFICATION: "no",
   TEAM_INVITE: "i",
+  TEAM_INVITED_AT: "ia",
+  TEAM_NAME: "n",
   TEAM_ACTIVE: "a",
   TEAM_ADMIN: "ad",
   SENDER_UID: "s",
   NOTI_TYPE: "nt",
   LATEST_NOTI: "ln",
-  USER_JOINED_AT: "ujA"
+  USER_JOINED_AT: "ujA",
+  RECENT_SENDER: "rs"
 };
 
 export const NOTI_TYPE = {

@@ -34,14 +34,18 @@ export const onCreateInviteFromAsc = triggerInviteFromAsc.onCreate(
       let notiData, latestData;
 
       for (const ascId in newValue) {
-        if (newValue.hasOwnProperty(ascId)) {
-          const seconds = getTimeNumber(newValue[ascId]);
+        if (
+          newValue.hasOwnProperty(ascId) &&
+          newValue[ascId].hasOwnProperty(CONST.TEAM_INVITED_AT)
+        ) {
+          const seconds = getTimeNumber(newValue[ascId][CONST.TEAM_INVITED_AT]);
           // newValue[ascId]._seconds * 1000 +
           // Math.floor(newValue[ascId]._nanoseconds / 1000000);
           notiData = {
             [seconds]: {
               [CONST.SENDER_UID]: ascId,
-              [CONST.NOTI_TYPE]: NOTI_TYPE.ADD_ASC_TO_TEAM
+              [CONST.NOTI_TYPE]: NOTI_TYPE.ADD_ASC_TO_TEAM,
+              [CONST.TEAM_NAME]: newValue[ascId][CONST.TEAM_NAME]
             }
           };
 
@@ -67,6 +71,7 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
     const previousValue = change.before.data();
     const teamId = context.params.teamId;
     let notiData, latestData;
+
     // console.log(`onUpdate trigger new value: ${JSON.stringify(newValue)}`);
     // console.log(
     //   `onUpdate trigger previous value: ${JSON.stringify(previousValue)}`
@@ -77,17 +82,27 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
       const notiRef = teamRef
         .collection(CONST.NOTIFICATION)
         .doc(CONST.TEAM_ADMIN);
+      const senderUID = newValue.hasOwnProperty(CONST.RECENT_SENDER)
+        ? newValue[CONST.RECENT_SENDER]
+        : "";
 
       // 초대 추가된 경우, 중복 초대한 경우
       for (const ascId in newValue) {
-        if (newValue.hasOwnProperty(ascId)) {
-          const newSeconds = getTimeNumber(newValue[ascId]);
+        if (
+          newValue.hasOwnProperty(ascId) &&
+          newValue[ascId].hasOwnProperty(CONST.TEAM_INVITED_AT)
+        ) {
+          const newSeconds = getTimeNumber(
+            newValue[ascId][CONST.TEAM_INVITED_AT]
+          );
           // newValue[ascId]._seconds * 1000 +
           // Math.floor(newValue[ascId]._nanoseconds / 1000000);
 
           const prevSeconds =
-            previousValue !== undefined && previousValue.hasOwnProperty(ascId)
-              ? getTimeNumber(previousValue[ascId])
+            previousValue !== undefined &&
+            previousValue.hasOwnProperty(ascId) &&
+            previousValue[ascId].hasOwnProperty(CONST.TEAM_INVITED_AT)
+              ? getTimeNumber(previousValue[ascId][CONST.TEAM_INVITED_AT])
               : // previousValue[ascId]._seconds * 1000 +
                 //   Math.floor(previousValue[ascId]._nanoseconds / 1000000)
                 0;
@@ -96,7 +111,8 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
             notiData = {
               [newSeconds]: {
                 [CONST.SENDER_UID]: ascId,
-                [CONST.NOTI_TYPE]: NOTI_TYPE.ADD_ASC_TO_TEAM
+                [CONST.NOTI_TYPE]: NOTI_TYPE.ADD_ASC_TO_TEAM,
+                [CONST.TEAM_NAME]: newValue[ascId][CONST.TEAM_NAME]
               },
               [prevSeconds]: admin.firestore.FieldValue.delete()
             };
@@ -112,10 +128,14 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
       if (notiData === undefined && latestData === undefined) {
         for (const ascId in previousValue) {
           if (
+            senderUID === ascId &&
             previousValue.hasOwnProperty(ascId) &&
+            previousValue[ascId].hasOwnProperty(CONST.TEAM_INVITED_AT) &&
             !newValue.hasOwnProperty(ascId)
           ) {
-            const prevSeconds = getTimeNumber(previousValue[ascId]);
+            const prevSeconds = getTimeNumber(
+              previousValue[ascId][CONST.TEAM_INVITED_AT]
+            );
             notiData = {
               [prevSeconds]: admin.firestore.FieldValue.delete()
             };
@@ -125,6 +145,8 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
           }
         }
       }
+
+      // batch
       if (notiData !== undefined && latestData !== undefined) {
         let batch = db.batch();
         batch.update(teamRef, latestData);
