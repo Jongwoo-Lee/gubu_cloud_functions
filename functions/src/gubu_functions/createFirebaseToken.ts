@@ -1,7 +1,5 @@
 import * as request from "request-promise";
 
-
-
 const KAKAO_APIURL = "https://kapi.kakao.com/v2/user/me";
 const NAVER_APIURL = "https://openapi.naver.com/v1/nid/me";
 
@@ -37,7 +35,6 @@ const createFirebaseToken = ({
         userInfo.userId = `${userInfo.providerId}:${res.id}`;
         let email = res.kakao_account.email;
         if (email == undefined || email == null) {
-
           email = `${makeRandomEmail()}@kakao.com`;
         }
 
@@ -158,9 +155,9 @@ function updateOrCreateUser(admin: any, userInfo: UserInfo) {
 // https://github.com/firebase/firebase-js-sdk/blob/master/packages/firestore/src/util/misc.ts#L26
 function makeRandomEmail() {
   const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let autoId = '';
-  for (let i = 0; i < 20; i++) {
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let autoId = "generated_";
+  for (let i = 0; i < 15; i++) {
     autoId += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   // assert(autoId.length === 20, 'Invalid auto ID: ' + autoId);
