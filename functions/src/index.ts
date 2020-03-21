@@ -25,5 +25,8 @@ export {
 
 export {
   onCreateInviteFromAsc,
-  onUpdateInviteFromAsc
+  onUpdateInviteFromAsc,
+  onCreateInviteFromUser,
+  onUpdateInviteFromUser,
+  onDeleteInviteFromUser
 } from "./exports/team_noti";
