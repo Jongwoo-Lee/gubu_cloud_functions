@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import createFirebaseToken from "../gubu_functions/createFirebaseToken";
+import { CONST } from "../constant";
 const { config, Group } = require("solapi");
 
 const credentials = functions.config().solapi;
@@ -144,7 +145,10 @@ export const verifySMSCode = functions
                 );
               });
 
-            tx.update(userRef, { isVerified: true });
+            tx.update(userRef, {
+              isVerified: true,
+              [CONST.USER_JOINED_AT]: admin.firestore.FieldValue.serverTimestamp()
+            });
           })
           .then(_ => {
             return { success: true };
