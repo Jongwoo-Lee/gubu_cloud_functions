@@ -1,5 +1,11 @@
 import * as admin from "firebase-admin";
 
+// 주의사항
+// 1. firebase use 로 내가 deploy하려는 채널, Branch일치 확인해야 함
+// 2. branch에 따라 경로 달리 쓰는 부분 주의
+//   2-1. 아래 serviceAccount, databaseURL
+//   2-2. constant/index.ts에서 CONST.TEAMS
+
 // release branch
 // var serviceAccount = require("../gubuapp-firebase-adminsdk-ache6-d79a8a8fa0.json");
 // var databaseURL = "https://gubuapp.firebaseio.com";
