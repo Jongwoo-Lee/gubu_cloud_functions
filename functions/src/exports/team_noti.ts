@@ -12,7 +12,7 @@ const db = admin.firestore();
 const triggerInviteFromAsc = functions
   .region("asia-northeast1")
   .firestore.document(
-    `${CONST.TEAMS_V4}/{teamId}/${CONST.TEAM_INACTIVE}/${CONST.ASC}`
+    `${CONST.TEAMS}/{teamId}/${CONST.TEAM_INACTIVE}/${CONST.ASC}`
   );
 
 const getTimeNumber = (date: { _seconds: number; _nanoseconds: number }) => {
@@ -27,7 +27,7 @@ export const onCreateInviteFromAsc = triggerInviteFromAsc.onCreate(
     if (newValue !== undefined && teamId !== undefined) {
       // console.log(`onCreate trigger new value : ${JSON.stringify(newValue)}`);
 
-      const teamRef = db.doc(`${CONST.TEAMS_V4}/${teamId}`);
+      const teamRef = db.doc(`${CONST.TEAMS}/${teamId}`);
       const notiRef = teamRef
         .collection(CONST.NOTIFICATION)
         .doc(CONST.TEAM_ADMIN);
@@ -79,7 +79,7 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
     // );
 
     if (newValue !== undefined && teamId !== undefined) {
-      const teamRef = db.doc(`${CONST.TEAMS_V4}/${teamId}`);
+      const teamRef = db.doc(`${CONST.TEAMS}/${teamId}`);
       const notiRef = teamRef
         .collection(CONST.NOTIFICATION)
         .doc(CONST.TEAM_ADMIN);
@@ -101,12 +101,12 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
 
           const prevSeconds =
             previousValue !== undefined &&
-            previousValue.hasOwnProperty(ascId) &&
-            previousValue[ascId].hasOwnProperty(CONST.TEAM_INVITED_AT)
+              previousValue.hasOwnProperty(ascId) &&
+              previousValue[ascId].hasOwnProperty(CONST.TEAM_INVITED_AT)
               ? getTimeNumber(previousValue[ascId][CONST.TEAM_INVITED_AT])
               : // previousValue[ascId]._seconds * 1000 +
-                //   Math.floor(previousValue[ascId]._nanoseconds / 1000000)
-                0;
+              //   Math.floor(previousValue[ascId]._nanoseconds / 1000000)
+              0;
 
           if (newSeconds !== prevSeconds) {
             notiData = {
@@ -165,7 +165,7 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
 const triggerInviteFromUser = functions
   .region("asia-northeast1")
   .firestore.document(
-    `${CONST.TEAMS_V4}/{teamId}/${CONST.NO_VALIDATE}/{userId}`
+    `${CONST.TEAMS}/{teamId}/${CONST.NO_VALIDATE}/{userId}`
   );
 
 export const onCreateInviteFromUser = triggerInviteFromUser.onCreate(
@@ -181,7 +181,7 @@ export const onCreateInviteFromUser = triggerInviteFromUser.onCreate(
     ) {
       // console.log(`onCreate trigger new value : ${JSON.stringify(newValue)}`);
 
-      const teamRef = db.doc(`${CONST.TEAMS_V4}/${teamId}`);
+      const teamRef = db.doc(`${CONST.TEAMS}/${teamId}`);
       const notiRef = teamRef
         .collection(CONST.NOTIFICATION)
         .doc(CONST.TEAM_ADMIN);
@@ -229,7 +229,7 @@ export const onUpdateInviteFromUser = triggerInviteFromUser.onUpdate(
       teamId !== undefined &&
       userId !== undefined
     ) {
-      const teamRef = db.doc(`${CONST.TEAMS_V4}/${teamId}`);
+      const teamRef = db.doc(`${CONST.TEAMS}/${teamId}`);
       const notiRef = teamRef
         .collection(CONST.NOTIFICATION)
         .doc(CONST.TEAM_ADMIN);
@@ -243,7 +243,7 @@ export const onUpdateInviteFromUser = triggerInviteFromUser.onUpdate(
 
         const prevSeconds =
           previousValue !== undefined &&
-          previousValue.hasOwnProperty(CONST.CREATED_AT)
+            previousValue.hasOwnProperty(CONST.CREATED_AT)
             ? getTimeNumber(previousValue[CONST.CREATED_AT])
             : 0;
 
@@ -286,7 +286,7 @@ export const onDeleteInviteFromUser = triggerInviteFromUser.onDelete(
       teamId !== undefined &&
       userId !== undefined
     ) {
-      const teamRef = db.doc(`${CONST.TEAMS_V4}/${teamId}`);
+      const teamRef = db.doc(`${CONST.TEAMS}/${teamId}`);
       const notiRef = teamRef
         .collection(CONST.NOTIFICATION)
         .doc(CONST.TEAM_ADMIN);

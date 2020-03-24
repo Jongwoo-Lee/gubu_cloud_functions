@@ -33,3 +33,7 @@ export {
   onUpdateInviteFromUser,
   onDeleteInviteFromUser
 } from "./exports/team_noti";
+
+export {
+  kakaoMap
+} from './exports/kakao_map';
