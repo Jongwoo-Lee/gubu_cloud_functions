@@ -1,7 +1,7 @@
 export const CONST = {
   DEFAULT_REGION: "asia-northeast1",
   USERS: "users",
-  TEAMS: "teams_v4",
+  TEAMS: "teams", // master: "teams_v4" , release: "teams"
   GAMES: "games",
   ASC: "asc",
   CUP: "cup",
