@@ -5,6 +5,7 @@ import * as admin from "firebase-admin";
 // 2. branch에 따라 경로 달리 쓰는 부분 주의
 //   2-1. 아래 serviceAccount, databaseURL
 //   2-2. constant/index.ts에서 CONST.TEAMS
+//   2-3. kakao_map.ts에서 kakaoAPIKEY
 
 // release branch
 // var serviceAccount = require("../gubuapp-firebase-adminsdk-ache6-d79a8a8fa0.json");

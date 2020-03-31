@@ -2,8 +2,13 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 
 
+// master
+const kakaoAPIKEY = "c8f0096a6486d0d456622ce48fa20790";
+// const kakaoAPIKEY = "60b751d63e8817c0ad66776ac8f09ea5";
+
 // https://asia-northeast1-outsid-prealpha2.cloudfunctions.net/kakaoMap
 // firebase sample_functions authorization  
+
 export const kakaoMap = functions
     .region("asia-northeast1")
     .https.onRequest(async (req, res) => {
@@ -68,7 +73,7 @@ export const kakaoMap = functions
                         }
                     </script>
                     <script type="text/javascript"
-                        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c8f0096a6486d0d456622ce48fa20790&libraries=services"></script>
+                        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoAPIKEY}&libraries=services"></script>
                     <script type="text/javascript">
                         oParam = getUrlParams();
                         var level = oParam.level ? oParam.level : 3;
