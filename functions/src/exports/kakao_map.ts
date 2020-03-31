@@ -1,11 +1,17 @@
 import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
 
 
 // https://asia-northeast1-outsid-prealpha2.cloudfunctions.net/kakaoMap
+// firebase sample_functions authorization  
 export const kakaoMap = functions
     .region("asia-northeast1")
-    .https.onRequest((req, res) => {
-        res.send(`
+    .https.onRequest(async (req, res) => {
+        try {
+            const decodedIdToken = await admin.auth().verifyIdToken(req.headers.authorization ?? "");
+            console.log("ID Token correctly decoded", decodedIdToken);
+
+            res.send(`
             <!DOCTYPE html>
                 <html>
                     <head>
@@ -216,4 +222,9 @@ export const kakaoMap = functions
                         <script src="//developers.kakao.com/sdk/js/kakao.min.js"></script>
                 </body>
             </html>`);
+        } catch (error) {
+            console.error("Error while verifying Firebase ID token:", error);
+            res.status(403).send("Unauthorized");
+            return;
+        }
     });
