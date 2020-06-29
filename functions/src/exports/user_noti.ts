@@ -31,7 +31,12 @@ export const onUpdateActiveMembers = triggerActiveMembers.onUpdate(
     const previousValue = change.before.data();
     const teamId = context.params.teamId;
 
-    if (newValue !== undefined && teamId !== undefined) {
+    if (
+      newValue !== undefined &&
+      previousValue !== undefined &&
+      teamId !== undefined &&
+      Object.keys(newValue).length > Object.keys(previousValue).length
+    ) {
       // 초대 추가된 경우, 중복 초대한 경우
       for (const userId in newValue) {
         if (
@@ -45,43 +50,52 @@ export const onUpdateActiveMembers = triggerActiveMembers.onUpdate(
             newValue[userId][CONST.TEAM_JOINED_AT]
           );
 
-          const userRef = db.doc(`users/${userId}`);
+          const userRef = db.doc(
+            `users/${userId}/${CONST.LATEST_NOTI}/${CONST.NOTIFICATION}`
+          );
           const teamRef = db.doc(`${CONST.TEAMS}/${teamId}`);
 
-          db.runTransaction(tx => {
-            return tx.get(userRef).then(user => {
-              const userDoc = user.data();
-              if (userDoc === undefined || userDoc === null) return;
+          db.runTransaction((tx) => {
+            return tx
+              .get(userRef)
+              .then((noti) => {
+                console.log(noti);
+                const notiDoc = noti.data();
+                console.log(notiDoc);
+                // if (notiDoc === undefined || notiDoc === null) return;
 
-              // TODO: 100개 노티가 생길 경우 오래된 노티 삭제 - 따로 function 만들기
-              const notis = userDoc[CONST.LATEST_NOTI];
+                // TODO: 100개 노티가 생길 경우 오래된 노티 삭제 - 따로 function 만들기
 
-              return tx.get(teamRef).then(team => {
-                const teamDoc = team.data();
-                if (teamDoc === undefined || teamDoc === null) return;
+                return tx.get(teamRef).then((team) => {
+                  const teamDoc = team.data();
+                  if (teamDoc === undefined || teamDoc === null) return;
 
-                const newNoti = {
-                  [`${CONST.LATEST_NOTI}.${notiSeconds}`]: {
-                    [CONST.NOTI_TYPE]: USER_NOTI_TYPE.MEMBER_ADDED_TO_TEAM,
-                    [CONST.SENDER_UID]: teamId,
-                    [CONST.NOTI_NAME]: teamDoc[CONST.TEAMNAME]
+                  const newNoti = {
+                    [`${notiSeconds}`]: {
+                      [CONST.NOTI_TYPE]: USER_NOTI_TYPE.MEMBER_ADDED_TO_TEAM,
+                      [CONST.SENDER_UID]: teamId,
+                      [CONST.NOTI_NAME]: teamDoc[CONST.TEAMNAME],
+                      [CONST.NOTI_DATA]: {
+                        team_logo: teamDoc[CONST.TEAM_LOGO],
+                      },
+                    },
+                  };
+
+                  // 이전에 중복되는 팀 가입 승인 노티가 있는지 확인
+                  for (const sec in notiDoc) {
+                    if (
+                      notiDoc.hasOwnProperty(sec) &&
+                      notiDoc[sec][CONST.NOTI_TYPE] ===
+                        USER_NOTI_TYPE.MEMBER_ADDED_TO_TEAM &&
+                      notiDoc[sec][CONST.SENDER_UID] === teamId
+                    ) {
+                      newNoti[sec] = admin.firestore.FieldValue.delete();
+                    }
                   }
-                };
-
-                // 이전에 중복되는 팀 가입 승인 노티가 있는지 확인
-                for (const sec in notis) {
-                  if (
-                    notis.hasOwnProperty(sec) &&
-                    notis[sec][CONST.NOTI_TYPE] ===
-                      USER_NOTI_TYPE.MEMBER_ADDED_TO_TEAM &&
-                    notis[sec][CONST.SENDER_UID] === teamId
-                  ) {
-                    newNoti[sec] = admin.firestore.FieldValue.delete();
-                  }
-                }
-                tx.update(userRef, newNoti);
-              });
-            });
+                  return tx.set(userRef, newNoti, { merge: true });
+                });
+              })
+              .catch((err) => console.log(err));
           });
         }
       }
