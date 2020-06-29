@@ -15,7 +15,10 @@ const triggerInviteFromAsc = functions
     `${CONST.TEAMS}/{teamId}/${CONST.TEAM_INACTIVE}/${CONST.ASC}`
   );
 
-const getTimeNumber = (date: { _seconds: number; _nanoseconds: number }) => {
+export const getTimeNumber = (date: {
+  _seconds: number;
+  _nanoseconds: number;
+}) => {
   return date._seconds * 1000 + Math.floor(date._nanoseconds / 1000000);
 };
 
@@ -101,12 +104,12 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
 
           const prevSeconds =
             previousValue !== undefined &&
-              previousValue.hasOwnProperty(ascId) &&
-              previousValue[ascId].hasOwnProperty(CONST.TEAM_INVITED_AT)
+            previousValue.hasOwnProperty(ascId) &&
+            previousValue[ascId].hasOwnProperty(CONST.TEAM_INVITED_AT)
               ? getTimeNumber(previousValue[ascId][CONST.TEAM_INVITED_AT])
               : // previousValue[ascId]._seconds * 1000 +
-              //   Math.floor(previousValue[ascId]._nanoseconds / 1000000)
-              0;
+                //   Math.floor(previousValue[ascId]._nanoseconds / 1000000)
+                0;
 
           if (newSeconds !== prevSeconds) {
             notiData = {
@@ -164,9 +167,7 @@ export const onUpdateInviteFromAsc = triggerInviteFromAsc.onUpdate(
 // 2. team document 에 Notification 시간 추가
 const triggerInviteFromUser = functions
   .region("asia-northeast1")
-  .firestore.document(
-    `${CONST.TEAMS}/{teamId}/${CONST.NO_VALIDATE}/{userId}`
-  );
+  .firestore.document(`${CONST.TEAMS}/{teamId}/${CONST.NO_VALIDATE}/{userId}`);
 
 export const onCreateInviteFromUser = triggerInviteFromUser.onCreate(
   async (snap, context) => {
@@ -243,7 +244,7 @@ export const onUpdateInviteFromUser = triggerInviteFromUser.onUpdate(
 
         const prevSeconds =
           previousValue !== undefined &&
-            previousValue.hasOwnProperty(CONST.CREATED_AT)
+          previousValue.hasOwnProperty(CONST.CREATED_AT)
             ? getTimeNumber(previousValue[CONST.CREATED_AT])
             : 0;
 

@@ -1,11 +1,22 @@
 import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
 
+
+// master
+const kakaoAPIKEY = "c8f0096a6486d0d456622ce48fa20790";
+// const kakaoAPIKEY = "60b751d63e8817c0ad66776ac8f09ea5";
 
 // https://asia-northeast1-outsid-prealpha2.cloudfunctions.net/kakaoMap
+// firebase sample_functions authorization  
+
 export const kakaoMap = functions
     .region("asia-northeast1")
-    .https.onRequest((req, res) => {
-        res.send(`
+    .https.onRequest(async (req, res) => {
+        try {
+            const decodedIdToken = await admin.auth().verifyIdToken(req.headers.authorization ?? "");
+            console.log("ID Token correctly decoded", decodedIdToken);
+
+            res.send(`
             <!DOCTYPE html>
                 <html>
                     <head>
@@ -62,9 +73,10 @@ export const kakaoMap = functions
                         }
                     </script>
                     <script type="text/javascript"
-                        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c8f0096a6486d0d456622ce48fa20790&libraries=services"></script>
+                        src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoAPIKEY}&libraries=services"></script>
                     <script type="text/javascript">
                         oParam = getUrlParams();
+                        var level = oParam.level ? oParam.level : 3;
 
                         // 장소 검색 객체를 생성합니다
                         var ps = new kakao.maps.services.Places();
@@ -78,12 +90,16 @@ export const kakaoMap = functions
                         var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
                             mapOption = {
                                 center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
-                                level: 3 // 지도의 확대 레벨
+                                level: level // 지도의 확대 레벨
                             };
 
                         // 지도를 생성합니다    
                         var map = new kakao.maps.Map(mapContainer, mapOption);
 
+                        // var zoomControl = new kakao.maps.ZoomControl();
+
+                        // 지도 오른쪽에 줌 컨트롤이 표시되도록 지도에 컨트롤을 추가한다.
+                        // map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
                         if (!oParam.modifyMarker)
                             // 지도를 클릭했을때 클릭한 위치에 마커를 추가하도록 지도에 클릭이벤트를 등록합니다
@@ -102,7 +118,7 @@ export const kakaoMap = functions
                         if (oParam.lat && oParam.lan) {
                             // 우편번호와 주소 정보를 해당 필드에 넣는다.
 
-                            moveMapNMaker(oParam.lat, oParam.lan);
+                            moveMapNMaker(oParam.lat, oParam.lan, level);
                         } else {
                             function callbackMessage(message) {
                                 try {
@@ -183,11 +199,12 @@ export const kakaoMap = functions
                             markers = [];
                         }
 
-                        function moveMapNMaker(lat, lan) {
+                        function moveMapNMaker(lat, lan, level) {
                             var moveLatLon = new kakao.maps.LatLng(lat, lan);
 
                             // 지도 중심을 이동 시킵니다
                             map.setCenter(moveLatLon);
+                            map.setLevel(level);
                             addMarker(moveLatLon);
                         }
 
@@ -210,4 +227,9 @@ export const kakaoMap = functions
                         <script src="//developers.kakao.com/sdk/js/kakao.min.js"></script>
                 </body>
             </html>`);
+        } catch (error) {
+            console.error("Error while verifying Firebase ID token:", error);
+            res.status(403).send("Unauthorized");
+            return;
+        }
     });
