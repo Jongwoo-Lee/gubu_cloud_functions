@@ -1,11 +1,7 @@
 export const CONST = {
   DEFAULT_REGION: "asia-northeast1",
   USERS: "users",
-<<<<<<< HEAD
   TEAMS: "teams", // master: "teams_v4" , release: "teams"
-=======
-  TEAMS: "teams_v4", // master: "teams_v4" , release: "teams"
->>>>>>> origin/master
   GAMES: "games",
   ASC: "asc",
   CUP: "cup",
