@@ -1,3 +1,4 @@
+import * as admin from "firebase-admin";
 import * as request from "request-promise";
 
 const KAKAO_APIURL = "https://kapi.kakao.com/v2/user/me";
@@ -15,12 +16,10 @@ class UserInfo {
 
 const createFirebaseToken = ({
   customAccessToken,
-  provider,
-  admin
+  provider
 }: {
   customAccessToken: string;
   provider: string;
-  admin: any;
 }) => {
   let url = "";
   if (provider === "kakao") url = KAKAO_APIURL;
@@ -73,15 +72,15 @@ const createFirebaseToken = ({
           .send({ message: "There was no user with the given access token." });
       }
 
-      return updateOrCreateUser(admin, userInfo);
+      return updateOrCreateUser(userInfo);
     })
-    .then((userRecord: any) => {
+    .then((userRecord: admin.auth.UserRecord) => {
       const userId = userRecord.uid;
       console.log(`creating a custom firebase token based on uid ${userId}`);
       return admin.auth().createCustomToken(userId);
     })
-    .catch((error: any) => {
-      console.log(`Error Catch - ${error}`);
+    .catch((error) => {
+      throw error;
     });
 };
 
@@ -94,7 +93,7 @@ function requestMe(customAccessToken: string, url: string) {
   });
 }
 
-function updateOrCreateUser(admin: any, userInfo: UserInfo) {
+function updateOrCreateUser(userInfo: UserInfo) {
   console.log("updating or creating a firebase user");
   const updateParams = {
     uid: userInfo.userId,
@@ -106,13 +105,13 @@ function updateOrCreateUser(admin: any, userInfo: UserInfo) {
       .auth()
       //.createCustomToken(userInfo.userId)
       .updateUser(userInfo.userId, updateParams)
-      .then((result: any) => {
-        console.log(`${userInfo.userId} ++ ${result}`);
+      .then((result) => {
+        console.log(`${userInfo.userId} ++ res: ${result}`);
         return result;
       })
-      .catch((error: any) => {
+      .catch((error) => {
         //! 준학 error code 검색 후 에러문 추가할 것
-        console.log(`${userInfo.userId} ++ ${error}`);
+        console.log(`${userInfo.userId} -- err: ${error}`);
         if (error.code === "auth/user-not-found") {
           console.log("auth/user-not-found");
           const createParam = {
@@ -130,7 +129,9 @@ function updateOrCreateUser(admin: any, userInfo: UserInfo) {
           if (userInfo.userEmail) {
             createParam["email"] = userInfo.userEmail;
           }
-          const userRecord = admin.auth().createUser(createParam);
+          const userRecord = admin.auth().createUser(createParam).catch((err)=> {
+            throw err;
+          });
 
           const firestore = admin.firestore();
           firestore
@@ -141,7 +142,7 @@ function updateOrCreateUser(admin: any, userInfo: UserInfo) {
               displayName: userInfo.userName,
               isVerified: false
             })
-            .catch((err: any) => {
+            .catch((err) => {
               throw err;
             });
 
