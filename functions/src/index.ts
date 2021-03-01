@@ -15,6 +15,9 @@ import * as admin from "firebase-admin";
 var serviceAccount = require("../outsid-prealpha2-firebase-adminsdk-1znb0-89055996f1.json");
 var databaseURL = "https://outsid-prealpha2.firebaseio.com";
 
+// local
+// var serviceAccount = require("../../../keys/outsid-prealpha2-4bf6c3ac1fd5.json");
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: databaseURL

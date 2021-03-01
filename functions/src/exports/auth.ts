@@ -30,15 +30,14 @@ export const verifyCustomToken = functions
 
     createFirebaseToken({
       customAccessToken: token,
-      provider: provider,
-      admin: admin
+      provider: provider
     })
       .then((firebaseToken: any) => {
         console.log(`Returning firebase token to user: ${firebaseToken}`);
         res.send({ firebase_token: firebaseToken });
       })
       .catch(err => {
-        res.status(400).send({ message: `ERROR: ${err}` });
+        res.status(400).send(err);
       });
   });
 
