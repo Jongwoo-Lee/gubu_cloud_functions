@@ -16,6 +16,9 @@ var databaseURL = "https://gubuapp.firebaseio.com";
 // var databaseURL = "https://outsid-prealpha2.firebaseio.com";
 
 
+// local
+// var serviceAccount = require("../../../keys/outsid-prealpha2-4bf6c3ac1fd5.json");
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: databaseURL
